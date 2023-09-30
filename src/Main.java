@@ -1,4 +1,6 @@
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Scanner;
 
 public class Main {
@@ -105,7 +107,7 @@ public class Main {
 
         for (int i = 0; i < quantityX; i++) {
             for (int j = 0; j < quantityY; j++) {
-                xIy[i * quantityY + j] = xy[i * quantityY + j].divide(y[j]);
+                xIy[i * quantityY + j] = xy[i * quantityY + j].divide(y[j], new MathContext(4, RoundingMode.HALF_UP));
             }
         }
 
@@ -119,7 +121,7 @@ public class Main {
 
         for (int i = 0; i < quantityY; i++) {
             for (int j = 0; j < quantityX; j++) {
-                yIx[i * quantityX + j] = xy[j * quantityY + i].divide(x[j]);
+                yIx[i * quantityX + j] = xy[j * quantityY + i].divide(x[j], new MathContext(4, RoundingMode.HALF_UP));
             }
         }
 
@@ -133,18 +135,20 @@ public class Main {
         for (int i = 0; i < firstLength; i++)
             for (int j = 0; j < secondLength; j++)
                 System.out.println("Условная вероятность p(" + firstEnsemble + "_" + (i + 1) + "|" + secondEnsemble +
-                        "_"+ (j + 1) + "): " + probabilities[i * secondLength + j].stripTrailingZeros());
+                        "_" + (j + 1) + "): " + probabilities[i * secondLength + j].stripTrailingZeros());
     }
 
     private static void findEntropy(BigDecimal[] probabilities, String ensemble) {
         BigDecimal entropy = BigDecimal.valueOf(0);
 
         double ln2 = Math.log(2);
+
         for (BigDecimal probability : probabilities) {
             double value = probability.doubleValue();
             double ln = Math.log(value);
             entropy = entropy.add(probability.multiply(BigDecimal.valueOf(ln / ln2)));
         }
+
         entropy = entropy.multiply(BigDecimal.valueOf(-1)).stripTrailingZeros();
 
         System.out.println();
@@ -200,3 +204,4 @@ public class Main {
 
 // 0,21 0,42 0,07 0,09 0,18 0,03
 // 0,14 0,35 0,21 0,06 0,15 0,09
+// 0,4 0,3 0,2 0,1
