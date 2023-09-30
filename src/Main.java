@@ -1,5 +1,4 @@
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.Scanner;
 
 public class Main {
@@ -20,8 +19,12 @@ public class Main {
         writeConditionalProbabilities(xIy, 'x', 'y', quantityX, quantityY);
         writeConditionalProbabilities(yIx, 'y', 'x', quantityY, quantityX);
 
-        BigDecimal hX = findEntropy(x, 'X');
-        BigDecimal hY = findEntropy(y, 'Y');
+        BigDecimal hX = findEntropy(x, "X");
+        BigDecimal hY = findEntropy(y, "Y");
+        BigDecimal XY = findEntropy(xy, "XY");
+
+        BigDecimal h_yX = findConditionalEntropyX(xIy, y, quantityX, quantityY);
+        BigDecimal h_xY = findConditionalEntropyY(yIx, x, quantityX, quantityY);
     }
 
     private static int readNumber(char ensemble) {
@@ -133,7 +136,7 @@ public class Main {
                         "_"+ (j + 1) + "): " + probabilities[i * secondLength + j].stripTrailingZeros());
     }
 
-    private static BigDecimal findEntropy(BigDecimal[] probabilities, char ensemble) {
+    private static BigDecimal findEntropy(BigDecimal[] probabilities, String ensemble) {
         BigDecimal entropy = BigDecimal.valueOf(0);
 
         double ln2 = Math.log(2);
@@ -142,12 +145,62 @@ public class Main {
             double ln = Math.log(value);
             entropy = entropy.add(probability.multiply(BigDecimal.valueOf(ln / ln2)));
         }
-        entropy = entropy.multiply(BigDecimal.valueOf(-1));
+        entropy = entropy.multiply(BigDecimal.valueOf(-1)).stripTrailingZeros();
 
         System.out.println();
         System.out.println("Энтропия H(" + ensemble + "): " + entropy);
 
         return entropy;
+    }
+
+    private static BigDecimal findConditionalEntropyX(BigDecimal[] xIy, BigDecimal[] y, int quantityX, int quantityY) {
+        BigDecimal h_yX = BigDecimal.valueOf(0);
+        double ln2 = Math.log(2);
+
+        for (int i = 0; i < quantityY; i++) {
+            BigDecimal h_y_iX = BigDecimal.valueOf(0);
+
+            for (int j = 0; j < quantityX; j++) {
+                BigDecimal current = xIy[i + j * quantityY];
+                double value = current.doubleValue();
+                double ln = Math.log(value);
+                h_y_iX = h_y_iX.add(current.multiply(BigDecimal.valueOf(ln / ln2)));
+            }
+
+            h_y_iX = h_y_iX.multiply(BigDecimal.valueOf(-1));
+
+            h_yX = h_yX.add(y[i].multiply(h_y_iX)).stripTrailingZeros();
+        }
+
+        System.out.println();
+        System.out.println("Условная энтропия H_y(X): " + h_yX);
+
+        return h_yX;
+    }
+
+    private static BigDecimal findConditionalEntropyY(BigDecimal[] yIx, BigDecimal[] x, int quantityX, int quantityY) {
+        BigDecimal h_xY = BigDecimal.valueOf(0);
+        double ln2 = Math.log(2);
+
+        for (int i = 0; i < quantityX; i++) {
+            BigDecimal h_x_iY = BigDecimal.valueOf(0);
+
+            for (int j = 0; j < quantityY; j++) {
+                BigDecimal current = yIx[i + quantityX * j];
+                double value = current.doubleValue();
+                double ln = Math.log(value);
+                h_x_iY = h_x_iY.add(current.multiply(BigDecimal.valueOf(ln / ln2)));
+            }
+
+            h_x_iY = h_x_iY.multiply(BigDecimal.valueOf(-1));
+
+            h_xY = h_xY.add(x[i].multiply(h_x_iY)).stripTrailingZeros();
+        }
+
+        System.out.println();
+        System.out.println("Условная энтропия H_x(Y): " + h_xY);
+
+        return h_xY;
     }
 }
 
