@@ -19,12 +19,12 @@ public class Main {
         writeConditionalProbabilities(xIy, 'x', 'y', quantityX, quantityY);
         writeConditionalProbabilities(yIx, 'y', 'x', quantityY, quantityX);
 
-        BigDecimal hX = findEntropy(x, "X");
-        BigDecimal hY = findEntropy(y, "Y");
-        BigDecimal XY = findEntropy(xy, "XY");
+        findEntropy(x, "X");
+        findEntropy(y, "Y");
+        findEntropy(xy, "XY");
 
-        BigDecimal h_yX = findConditionalEntropyX(xIy, y, quantityX, quantityY);
-        BigDecimal h_xY = findConditionalEntropyY(yIx, x, quantityX, quantityY);
+        findConditionalEntropyX(xIy, y, quantityX, quantityY);
+        findConditionalEntropyY(yIx, x, quantityX, quantityY);
     }
 
     private static int readNumber(char ensemble) {
@@ -136,7 +136,7 @@ public class Main {
                         "_"+ (j + 1) + "): " + probabilities[i * secondLength + j].stripTrailingZeros());
     }
 
-    private static BigDecimal findEntropy(BigDecimal[] probabilities, String ensemble) {
+    private static void findEntropy(BigDecimal[] probabilities, String ensemble) {
         BigDecimal entropy = BigDecimal.valueOf(0);
 
         double ln2 = Math.log(2);
@@ -149,11 +149,9 @@ public class Main {
 
         System.out.println();
         System.out.println("Энтропия H(" + ensemble + "): " + entropy);
-
-        return entropy;
     }
 
-    private static BigDecimal findConditionalEntropyX(BigDecimal[] xIy, BigDecimal[] y, int quantityX, int quantityY) {
+    private static void findConditionalEntropyX(BigDecimal[] xIy, BigDecimal[] y, int quantityX, int quantityY) {
         BigDecimal h_yX = BigDecimal.valueOf(0);
         double ln2 = Math.log(2);
 
@@ -174,11 +172,9 @@ public class Main {
 
         System.out.println();
         System.out.println("Условная энтропия H_y(X): " + h_yX);
-
-        return h_yX;
     }
 
-    private static BigDecimal findConditionalEntropyY(BigDecimal[] yIx, BigDecimal[] x, int quantityX, int quantityY) {
+    private static void findConditionalEntropyY(BigDecimal[] yIx, BigDecimal[] x, int quantityX, int quantityY) {
         BigDecimal h_xY = BigDecimal.valueOf(0);
         double ln2 = Math.log(2);
 
@@ -199,8 +195,6 @@ public class Main {
 
         System.out.println();
         System.out.println("Условная энтропия H_x(Y): " + h_xY);
-
-        return h_xY;
     }
 }
 
