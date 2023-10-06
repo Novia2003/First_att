@@ -4,7 +4,9 @@ import java.math.RoundingMode;
 import java.util.Scanner;
 
 public class Main {
+
     public static void main(String[] args) {
+
         int quantityX = readNumber('X');
         int quantityY = readNumber('Y');
         BigDecimal[] xy = readProductEnsembles(quantityX * quantityY);
@@ -87,17 +89,19 @@ public class Main {
 
     private static void checkEnsemblesForIndependence(BigDecimal[] x, BigDecimal[] y, BigDecimal[] xy) {
         System.out.println();
+        boolean isIndependence = true;
 
         for (int i = 0; i < x.length; i++) {
             for (int j = 0; j < y.length; j++) {
-                if (!xy[i * y.length + j].stripTrailingZeros().equals(x[i].multiply(y[j]).stripTrailingZeros())) {
-                    System.out.println("Ансамбли X и Y зависимы");
-                    return;
-                }
+                BigDecimal current = (x[i].multiply(y[j])).stripTrailingZeros();
+                System.out.println("Произведение вероятностей p(x_" + (i + 1) + ") * p(y_" + (j + 1) + "): " + current);
+
+                isIndependence = isIndependence && xy[i * y.length + j].stripTrailingZeros().equals(current);
             }
         }
 
-        System.out.println("Ансамбли X и Y независимы");
+        System.out.println();
+        System.out.println("Ансамбли X и Y " + ((isIndependence) ? "независимы" : "зависимы"));
     }
 
     private static BigDecimal[] findConditionalProbabilitiesXIY(
@@ -107,7 +111,7 @@ public class Main {
 
         for (int i = 0; i < quantityX; i++) {
             for (int j = 0; j < quantityY; j++) {
-                xIy[i * quantityY + j] = xy[i * quantityY + j].divide(y[j], new MathContext(4, RoundingMode.HALF_UP));
+                xIy[i * quantityY + j] = xy[i * quantityY + j].divide(y[j], new MathContext(8, RoundingMode.HALF_UP));
             }
         }
 
@@ -121,7 +125,7 @@ public class Main {
 
         for (int i = 0; i < quantityY; i++) {
             for (int j = 0; j < quantityX; j++) {
-                yIx[i * quantityX + j] = xy[j * quantityY + i].divide(x[j], new MathContext(4, RoundingMode.HALF_UP));
+                yIx[i * quantityX + j] = xy[j * quantityY + i].divide(x[j], new MathContext(8, RoundingMode.HALF_UP));
             }
         }
 
@@ -156,6 +160,8 @@ public class Main {
     }
 
     private static void findConditionalEntropyX(BigDecimal[] xIy, BigDecimal[] y, int quantityX, int quantityY) {
+        System.out.println();
+
         BigDecimal h_yX = BigDecimal.valueOf(0);
         double ln2 = Math.log(2);
 
@@ -171,6 +177,8 @@ public class Main {
 
             h_y_iX = h_y_iX.multiply(BigDecimal.valueOf(-1));
 
+            System.out.println("Частная условная энтропия H_y" + (i + 1) + "(X): " + h_y_iX.stripTrailingZeros());
+
             h_yX = h_yX.add(y[i].multiply(h_y_iX)).stripTrailingZeros();
         }
 
@@ -179,6 +187,8 @@ public class Main {
     }
 
     private static void findConditionalEntropyY(BigDecimal[] yIx, BigDecimal[] x, int quantityX, int quantityY) {
+        System.out.println();
+
         BigDecimal h_xY = BigDecimal.valueOf(0);
         double ln2 = Math.log(2);
 
@@ -193,6 +203,8 @@ public class Main {
             }
 
             h_x_iY = h_x_iY.multiply(BigDecimal.valueOf(-1));
+
+            System.out.println("Частная условная энтропия H_x" + (i + 1) + "(Y): " + h_x_iY.stripTrailingZeros());
 
             h_xY = h_xY.add(x[i].multiply(h_x_iY)).stripTrailingZeros();
         }
